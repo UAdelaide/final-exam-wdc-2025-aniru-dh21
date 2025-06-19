@@ -71,3 +71,9 @@ app.get('/', async (req, res) => {
 app.use(express.static(path.join(__dirname, 'public')));
 
 module.exports = app;
+
+const PORT = 8080;
+
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
