@@ -166,6 +166,21 @@ app.get('/', async (req, res) => {
   }
 });
 
+app.get('/api/dogs', async (req, res) => {
+  try {
+    const [dogs] = await db.execute(`
+      SELECT d.name as dog_name, d.size, u.username as owner_username
+      FROM Dogs d
+      JOIN USERS u ON d.owner_id = u.user_id
+      ORDER BY d.name
+    `);
+    res.json(dogs);
+  } catch (err) {
+    console.error('Error fetching dogs:', err);
+    res.status(500).json({ error: 'Failed to fetch dogs' });
+  }
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 module.exports = app;
