@@ -130,3 +130,115 @@ body {
   text-shadow: 2px 2px 0px #000000;
 }
 
+.dog-container:hover .dog-details {
+  opacity: 1;
+}
+
+.buttons {
+  display: flex;
+  gap: 5px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn {
+  padding: 15px 30px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #ffffff;
+  background: linear-gradient(45deg, #ff0066, #6600ff);
+  border: 3px solid #00ff00;
+  border-radius: 50px;
+  cursor: pointer;
+  animation: shake 1.5s infinite;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
+  transform: rotate(5deg);
+}
+
+.btn:hover {
+  animation: spin 0.5s linear infinite;
+  background: linear-gradient(45deg, #00ff66, #ff6600);
+  transform: scale(1.2) rotate(-10deg);
+}
+
+.info-panel {
+  position: fixed;
+  top: 50%;
+  right: -300px;
+  width: 280px;
+  height: 400px;
+  background: rgba(255, 255, 0, 0.9);
+  border: 5px solid #ff0000;
+  padding: 20px;
+  transition: right 15s ease-in-out;
+  z-index: 1000;
+  animation: blink 2s infinite;
+  font-size: 0.8rem;
+  color: #000080;
+  overflow-y: scroll;
+}
+
+.info-panel:hover {
+  right: 0;
+}
+
+.floating-text {
+  position: fixed;
+  font-size: 2rem;
+  color: #ff0000;
+  animation: float 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 999;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(100vh) rotate(0deg);
+  }
+
+  100% {
+    transform: translateY(-100px) rotate(720deg);
+  }
+}
+
+.floating-text:nth-child(odd) {
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.floating-text:nth-child(even) {
+  right: 10%;
+  animation-delay: 1.5s;
+}
+
+.loading {
+  font-size: 2rem;
+  color: #ff00ff;
+  animation: blink 0.5s infinite;
+}
+
+.error {
+  color: #ff0000;
+  font-size: 1.5rem;
+  background: #ffff00;
+  padding: 10px;
+  border: 3px dashed #ff0000;
+  animation: shake 1s infinite;
+}
+
+/* Tiny text that's hard to read */
+.terms {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  font-size: 0.6rem;
+  color: #333333;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 5px;
+  text-align: justify;
+  line-height: 0.8;
+}
