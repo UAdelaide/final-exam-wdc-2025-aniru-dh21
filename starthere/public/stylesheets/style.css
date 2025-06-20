@@ -92,3 +92,41 @@ body {
   margin-bottom: 30px;
   text-decoration: underline overline line-through;
 }
+
+.dog-container {
+  position: relative;
+  margin: 20px 0;
+  padding: 20px;
+  border: 10px dashed #ff0000;
+  background: radial-gradient(circle, #ffff00, #ff00ff, #00ffff);
+  animation: shake 2s infinite reverse;
+  transform: skew(-10deg);
+}
+
+.dog-image {
+  width: 300px;
+  height: 300px;
+  object-fit: cover;
+  border: 5px solid #00ff00;
+  animation: spin 8s linear infinite;
+  filter: hue-rotate(180deg) saturate(200%) contrast(150%);
+}
+
+.dog-details {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 0, 0, 0.8);
+  color: #00ff00;
+  font-size: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.1s;
+  text-shadow: 2px 2px 0px #000000;
+}
+
