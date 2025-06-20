@@ -181,6 +181,57 @@ app.get('/api/dogs', async (req, res) => {
   }
 });
 
+app.get('/api/walkrequests/open', async (req, res) => {
+  try {
+    const [requests] = await db.execute(`
+      SELECT wr.request_id, d.name as dog_name, wr.requested_time,
+             wr.duration_minutes, wr.location, u.username as owner_username
+      FROM WalkRequests wr
+      JOIN Dogs d ON wr.dog_id = d.dog_id
+      JOIN Users u ON d.owner_id = u.user_id
+      WHERE wr.status = 'open'
+      ORDER BY wr.requested_time
+    `);
+    res.json(requests);
+  } catch (err) {
+    console.error('Error fetching open walk requests:', err);
+    res.status(500).json({ error: 'Failed to fetch open walk requests' });
+  }
+});
+
+app.get('/api/walkers/summary', async (req, res) => {
+  try {
+    const [walkers] = await db.execute(`
+      SELECT
+        u.username as walker_username,
+        COUNT(wr.rating_id) as total_ratings,
+        CASE
+          WHEN COUNT(wr.rating_id) > 0 THEN AVG(wr.rating)
+          ELSE NULL
+        END as average_rating,
+        COUNT(DISTINCT wa.request_id) as completed_walks
+      FROM Users u
+      LEFT JOIN WalkApplications wa ON u.user_id = wa.walker_id AND wa.status = 'accepted'
+      LEFT JOIN WalkRequests wreq ON wa.request_id = wreq.request_id AND wreq.status = 'completed'
+      LEFT JOIN WalkRatings wr ON wa.request_id = wr.request_id AND wr.walker_id = u.user_id
+      WHERE u.role = 'walker'
+      GROUP BY u.user_id, u.username
+      ORDER BY u.username
+    `);
+
+    const formattedWalkers = walkers.map(walker => ({
+      walker_username: walker.walker_username,
+      total_ratings: parseInt(walker.total_ratings),
+      average_rating: walker.average_rating ? parseFloat(walker.average_rating) : null,
+      completed_walks: parseInt(walker.completed_walks)
+    }));
+    res.json(formattedWalkers);
+  } catch (err) {
+    console.error('Error fecthing walker summary:', err);
+    res.status(500).json({ error: 'Failed to fetch walker summary' });
+  }
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 module.exports = app;
