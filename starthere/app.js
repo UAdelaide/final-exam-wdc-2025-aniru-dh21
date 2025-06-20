@@ -111,8 +111,45 @@ let db;
       `);
 
       await db.execute(`
+        INSERT INTO Dogs (owner_id, name, size) VALUES
+        ((SELECT user_id FROM Users WHERE username = 'alice123'), 'Max', 'medium'),
+        ((SELECT user_id FROM Users WHERE username = 'carol123'), 'Bella', 'small'),
+        ((SELECT user_id FROM Users WHERE username = 'alice123'), 'Rocky', 'large'),
+        ((SELECT user_id FROM Users WHERE username = 'emma_owner'), 'Luna', 'small'),
+        ((SELECT user_id FROM Users WHERE username = 'carol123'), 'Charlie', 'medium');
+      `);
 
-        `);
+      await db.execute(`
+        INSERT INTO WalkRequests (dog_id, requested_time, duration_minutes, location, status) VALUES
+        ((SELECT dog_id FROM Dogs WHERE name = 'Max' AND owner_id = (SELECT user_id FROM Users WHERE username = 'alice123')),
+        '2025-06-10 08:00:00', 30, 'Parklands', 'open'),
+        ((SELECT dog_id FROM Dogs WHERE name = 'Bella' AND owner_id = (SELECT user_id FROM Users WHERE username = 'carol123')),
+        '2025-06-10 09:30:00', 45, 'Beachside Ave', 'accepted'),
+        ((SELECT dog_id FROM Dogs WHERE name = 'Rocky' AND owner_id = (SELECT user_id FROM Users WHERE username = 'alice123')),
+        '2025-06-11 07:00:00', 60, 'Central Park', 'open'),
+        ((SELECT dog_id FROM Dogs WHERE name = 'Luna' AND owner_id = (SELECT user_id FROM Users WHERE username = 'emma_owner')),
+          '2025-06-11 16:00:00', 30, 'Riverside Trail', 'completed'),
+        ((SELECT dog_id FROM Dogs WHERE name = 'Charlie' AND owner_id = (SELECT user_id FROM Users WHERE username = 'carol123')),
+          '2025-06-12 10:15:00', 45, 'Dog Beach', 'open');
+      `);
+
+      await db.execute(`
+        INSERT INTO WalkApplications (request_id, walker_id) VALUES
+        ((SELECT request_id FROM WalkRequests WHERE dog_id = (SELECT dog_id FROM Dogs WHERE name = 'Max') AND requested_time = '2025-06-10 08:00:00'),
+        (SELECT user_id FROM Users WHERE username = 'bobwalker')),
+        ((SELECT request_id FROM WalkRequests WHERE dog_id = (SELECT dog_id FROM Dogs WHERE name = 'Bella') AND requested_time = '2025-06-10 09:30:00'),
+        (SELECT user_id FROM Users WHERE username = 'davidwalks')),
+        ((SELECT request_id FROM WalkRequests WHERE dog_id = (SELECT dog_id FROM Dogs WHERE name = 'Rocky') AND requested_time = '2025-06-11 07:00:00'),
+        (SELECT user_id FROM Users WHERE username = 'bobwalker'));
+      `);
+
+      await db.execute(`
+        INSERT INTO WalkRatings (request_id, walker_id, owner_id, rating, comments) VALUES
+        ((SELECT request_id FROM WalkRequests WHERE dog_id = (SELECT dog_id FROM Dogs WHERE name = 'Luna') AND requested_time = '2025-06-11 16:00:00'),
+        (SELECT user_id FROM Users WHERE username = 'davidwalks'),
+        (SELECT user_id FROM Users WHERE username = 'emma_owner'),
+          5, 'Excellent service! Luna had a great time and came back happy and tired.');
+      `);
     }
   } catch (err) {
     console.error('Error setting up database. Ensure Mysql is running: service mysql start', err);
@@ -122,7 +159,7 @@ let db;
 // Route to return books as JSON
 app.get('/', async (req, res) => {
   try {
-    const [books] = await db.execute('SELECT * FROM books');
+    const [books] = await db.execute('SELECT * FROM Users');
     res.json(books);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch books' });
