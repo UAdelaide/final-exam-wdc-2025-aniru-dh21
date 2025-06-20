@@ -1,8 +1,68 @@
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(45deg, #ff0066, #00ff66, #6600ff, #ffff00, #ff6600);
+  background-size: 400% 400%;
+  animation: rainbow 2s ease-in-out infinite;
+  font-family: 'Comic Sans MS', cursive;
+  overflow-x: hidden;
 }
 
-a {
-  color: #00B7FF;
+@keyframes rainbow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes blink {
+
+  0%,
+  50% {
+    opacity: 1;
+  }
+
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-5px) rotate(-2deg);
+  }
+
+  50% {
+    transform: translateX(5px) rotate(2deg);
+  }
+
+  75% {
+    transform: translateX(-3px) rotate(-1deg);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
