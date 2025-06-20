@@ -12,27 +12,30 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST a new user (simple signup)
-router.post('/register', async (req, res) => {
-  const { username, email, password, role } = req.body;
-
-  try {
-    const [result] = await db.query(`
-      INSERT INTO Users (username, email, password_hash, role)
-      VALUES (?, ?, ?, ?)
-    `, [username, email, password, role]);
-
-    res.status(201).json({ message: 'User registered', user_id: result.insertId });
-  } catch (error) {
-    res.status(500).json({ error: 'Registration failed' });
-  }
-});
-
 router.get('/me', (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ error: 'Not logged in' });
   }
   res.json(req.session.user);
+});
+
+router.get('/my-dogs', async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ error: 'Not logged in' });
+  }
+
+  try {
+    const [dogs] = await db.query(`
+      SELECT dog_id, name as dog_name, size
+      FROM Dogs
+      WHERE owner_id = ?
+      ORDER BY name
+    `, [req.session.user.user_id]);
+    res.json(dogs);
+  } catch (err) {
+    console.error('Error fetching user dogs:', err);
+    res.status(500).json({ error: 'Failed to fetch dogs' });
+  }
 });
 
 // POST login with session storage

@@ -27,8 +27,13 @@
       <div class="card-body">
         <form @submit.prevent="submitWalkRequest">
           <div class="mb-3">
-            <label class="form-label">Dog ID</label>
-            <input v-model="form.dog_id" type="number" class="form-control" required>
+            <label class="form-label">Select Your Dog</label>
+            <select v-model="form.dog_id" class="form-select" required>
+              <option value="" disabled>-- Choose a dog --</option>
+              <option v-for="dog in userDogs" :key="dog.dog_id" :value="dog.dog_id">
+                {{ dog.dog_name }} ({{ dog.size }})
+              </option>
+            </select>
           </div>
           <div class="mb-3">
             <label class="form-label">Requested Date & Time</label>
@@ -42,9 +47,16 @@
             <label class="form-label">Location</label>
             <input v-model="form.location" type="text" class="form-control" required>
           </div>
-          <button type="submit" class="btn btn-success">Create Walk</button>
+          <button type="submit" class="btn btn-success" :disabled="userDogs.length === 0">
+            {{ userDogs.length === 0 ? 'No Dogs Available' : 'Create Walk' }}
+          </button>
         </form>
       </div>
+    </div>
+
+    <!-- No dogs message -->
+    <div v-if="userDogs.length === 0" class="alert alert-warning">
+      <strong>No dogs found!</strong> You need to register your dogs before creating walk requests.
     </div>
 
     <!-- Success or error messages -->
@@ -85,8 +97,23 @@
         });
 
         const walks = ref([]);
+        const userDogs = ref([]);
         const message = ref('');
         const error = ref('');
+
+        async function loadUserDogs() {
+          try {
+            const res = await fetch('/api/users/my-dogs');
+            if (!res.ok) {
+              throw new Error('Failed to fetch dogs');
+            }
+            userDogs.value = await res.json();
+          } catch (err) {
+            console.error('Error loading dogs:', err);
+            error.value = 'Failed to load your dogs';
+            userDogs.value = [];
+          }
+        }
 
         async function loadWalks() {
           try {
@@ -134,6 +161,7 @@
               message.value = '';
               error.value = '';
               walks.value = [];
+              userDogs.value = [];
               window.location.href = '/index.html';
             } else {
               error.value = 'Logout failed';
@@ -144,12 +172,14 @@
         }
 
         onMounted(() => {
+          loadUserDogs();
           loadWalks();
         });
 
         return {
           form,
           walks,
+          userDogs,
           message,
           error,
           submitWalkRequest,
