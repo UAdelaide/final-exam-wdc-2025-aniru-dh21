@@ -11,11 +11,13 @@
 
 <body>
     <div id="app">
-        <div class="floating-text"> WOOF! </div>
-        <div class="floating-text"> BEST SERVICE </div>
-        <div class="floating-text"> CHEAP RATES </div>
-        <div class="floating-text"> AMAZING DEALS </div>
+        <!-- Floating distracting elements -->
+        <div class="floating-text">🐕 WOOF! 🐕</div>
+        <div class="floating-text">⭐ BEST SERVICE ⭐</div>
+        <div class="floating-text">💰 CHEAP RATES 💰</div>
+        <div class="floating-text">🎉 AMAZING DEALS 🎉</div>
 
+        <!-- Hard to reach info panel -->
         <div class="info-panel">
             <h3>SUPER IMPORTANT INFO!!!</h3>
             <p>Terms and conditions apply to all services. Rates may vary. Dogs must be vaccinated. Walker availability
@@ -29,16 +31,61 @@
         </div>
 
         <div class="container">
-            <h1 class="title">ULTIMATE DOG WALKING EXPERIENCE</h1>
-            <h2 class="subtitle">DOG OF THE DAY SPECTACULAR</h2>
+            <h1 class="title">🌟✨ ULTIMATE DOG WALKING EXPERIENCE ✨🌟</h1>
+            <h2 class="subtitle">🎊 DOG OF THE DAY SPECTACULAR 🎊</h2>
 
             <div v-if="loading" class="loading">
-                Loading amazing DOG PICTURE... PLEASE WAIT... This MIGht take a while...
+                🔄 LOADING AMAZING DOG PICTURE... PLEASE WAIT... THIS MIGHT TAKE A WHILE... 🔄
             </div>
 
             <div v-if="error" class="error">
                 ❌ ERROR: {{ error }} - TRY CLICKING EVERYWHERE TO FIX! ❌
             </div>
+
+            <div v-if="dogImage && !loading" class="dog-container">
+                <img :src="dogImage" alt="Random dog" class="dog-image">
+                <div class="dog-details">
+                    <h3>{{ dogName }}</h3>
+                    <p>Breed: {{ dogBreed }}</p>
+                    <p>Age: {{ dogAge }} years</p>
+                    <p>Size: {{ dogSize }}</p>
+                    <p>Walk Rate: ${{ walkRate }}/hour</p>
+                    <p>⭐ Rating: {{ rating }}/5 ⭐</p>
+                    <small>Hover to see details!</small>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button class="btn" @click="fetchNewDog" :disabled="loading">
+                    🔄 GET NEW DOG 🔄
+                </button>
+                <button class="btn" @click="bookWalker">
+                    📅 BOOK NOW!!! 📅
+                </button>
+                <button class="btn" @click="showContact">
+                    📞 CONTACT US 📞
+                </button>
+                <button class="btn" @click="showRates">
+                    💰 VIEW RATES 💰
+                </button>
+                <button class="btn" @click="showReviews">
+                    ⭐ REVIEWS ⭐
+                </button>
+                <button class="btn" @click="showSpecials">
+                    🎁 SPECIALS 🎁
+                </button>
+            </div>
+        </div>
+
+        <!-- Tiny, hard to read terms -->
+        <div class="terms">
+            By using this website you agree to our terms of service privacy policy cookie policy data usage policy
+            refund policy cancellation policy service agreement user agreement walker agreement dog owner agreement
+            liability waiver insurance waiver medical waiver emergency contact authorization photo release video release
+            marketing consent data collection consent third party sharing consent location tracking consent payment
+            processing consent background check consent reference check consent and all other applicable policies and
+            agreements which may be updated without notice and continued use constitutes acceptance of all changes and
+            modifications.
         </div>
     </div>
 </body>
