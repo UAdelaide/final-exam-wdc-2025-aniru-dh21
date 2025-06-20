@@ -27,6 +27,19 @@
             <p>Contact us at: walker@dogservice.com or call 1-800-DOG-WALK but only between 2:17 AM and 2:23 AM on
                 Tuesdays.</p>
         </div>
+
+        <div class="container">
+            <h1 class="title">ULTIMATE DOG WALKING EXPERIENCE</h1>
+            <h2 class="subtitle">DOG OF THE DAY SPECTACULAR</h2>
+
+            <div v-if="loading" class="loading">
+                Loading amazing DOG PICTURE... PLEASE WAIT... This MIGht take a while...
+            </div>
+
+            <div v-if="error" class="error">
+                ❌ ERROR: {{ error }} - TRY CLICKING EVERYWHERE TO FIX! ❌
+            </div>
+        </div>
     </div>
 </body>
 
