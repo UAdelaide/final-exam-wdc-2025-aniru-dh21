@@ -51,7 +51,22 @@
         const walks = ref([]);
         const message = ref('');
         const error = ref('');
-        const user = 3;
+        const currentUser = ref(null);
+
+        async function getCurrentUser() {
+          try {
+            const res = await fetch('/api/users/me');
+            if (!res.ok) {
+              throw new Error('Failed to get current user');
+            }
+            const userData = await res.json();
+            currentUser.value = userData;
+            return userData.user_id;
+          } catch (err) {
+            error.value = 'Failed to authenticate user';
+            throw err;
+          }
+        }
 
         async function loadWalkRequests() {
           try {
@@ -65,10 +80,13 @@
 
         async function applyToWalk(requestId) {
           try {
+            // Get current user ID dynamically
+            const userId = await getCurrentUser();
+
             const res = await fetch(`/api/walks/${requestId}/apply`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ walker_id: user })
+              body: JSON.stringify({ walker_id: userId })
             });
             const result = await res.json();
 
@@ -94,6 +112,7 @@
               message.value = '';
               error.value = '';
               walks.value = [];
+              currentUser.value = null;
               // Redirect to login page or home page
               window.location.href = '/index.html'; // Adjust path as needed
             } else {
@@ -112,6 +131,7 @@
           walks,
           message,
           error,
+          currentUser,
           applyToWalk,
           logout
         };

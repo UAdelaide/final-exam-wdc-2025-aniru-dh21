@@ -41,21 +41,85 @@ router.post('/:id/apply', async (req, res) => {
   const { walker_id } = req.body;
 
   try {
-    await db.query(`
-      INSERT INTO WalkApplications (request_id, walker_id)
-      VALUES (?, ?)
+    // First, check if this walker has already applied for this walk
+    const [existingApplication] = await db.query(`
+      SELECT application_id FROM WalkApplications
+      WHERE request_id = ? AND walker_id = ?
     `, [requestId, walker_id]);
 
+    if (existingApplication.length > 0) {
+      return res.status(400).json({ error: 'You have already applied for this walk' });
+    }
+
+    // Check if the walk request is still open
+    const [walkRequest] = await db.query(`
+      SELECT status FROM WalkRequests WHERE request_id = ?
+    `, [requestId]);
+
+    if (walkRequest.length === 0) {
+      return res.status(404).json({ error: 'Walk request not found' });
+    }
+
+    if (walkRequest[0].status !== 'open') {
+      return res.status(400).json({ error: 'This walk request is no longer available' });
+    }
+
+    // Insert the application
+    await db.query(`
+      INSERT INTO WalkApplications (request_id, walker_id, status)
+      VALUES (?, ?, 'pending')
+    `, [requestId, walker_id]);
+
+    // Note: We're NOT changing the WalkRequest status to 'accepted' here
+    // The status should remain 'open' until the owner selects a walker
+    // You might want to implement an endpoint for owners to accept/reject applications
+
+    res.status(201).json({ message: 'Application submitted successfully' });
+  } catch (error) {
+    console.error('SQL Error:', error);
+    res.status(500).json({ error: 'Failed to apply for walk' });
+  }
+});
+
+// Optional: Add endpoint for owners to accept applications
+router.post('/:id/accept/:applicationId', async (req, res) => {
+  const requestId = req.params.id;
+  const applicationId = req.params.applicationId;
+
+  try {
+    // Start transaction
+    await db.query('START TRANSACTION');
+
+    // Update the specific application to 'accepted'
+    await db.query(`
+      UPDATE WalkApplications
+      SET status = 'accepted'
+      WHERE application_id = ? AND request_id = ?
+    `, [applicationId, requestId]);
+
+    // Update walk request status to 'accepted'
     await db.query(`
       UPDATE WalkRequests
       SET status = 'accepted'
       WHERE request_id = ?
     `, [requestId]);
 
-    res.status(201).json({ message: 'Application submitted' });
+    // Reject all other applications for this request
+    await db.query(`
+      UPDATE WalkApplications
+      SET status = 'rejected'
+      WHERE request_id = ? AND application_id != ?
+    `, [requestId, applicationId]);
+
+    // Commit transaction
+    await db.query('COMMIT');
+
+    res.json({ message: 'Application accepted successfully' });
   } catch (error) {
+    // Rollback transaction on error
+    await db.query('ROLLBACK');
     console.error('SQL Error:', error);
-    res.status(500).json({ error: 'Failed to apply for walk' });
+    res.status(500).json({ error: 'Failed to accept application' });
   }
 });
 
