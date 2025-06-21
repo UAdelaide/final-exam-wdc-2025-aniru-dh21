@@ -62,10 +62,9 @@ router.post('/:id/apply', async (req, res) => {
   const { walker_id } = req.body;
 
   try {
-    // Start transaction
     await db.query('START TRANSACTION');
 
-    // First, check if this walker has already applied for this walk
+    // First, checks if this walker has already applied for this walk
     const [existingApplication] = await db.query(`
       SELECT application_id FROM WalkApplications
       WHERE request_id = ? AND walker_id = ?
@@ -104,7 +103,6 @@ router.post('/:id/apply', async (req, res) => {
       WHERE request_id = ?
     `, [requestId]);
 
-    // Commit transaction
     await db.query('COMMIT');
 
     res.status(201).json({ message: 'Application submitted successfully' });
@@ -122,7 +120,6 @@ router.post('/:id/accept/:applicationId', async (req, res) => {
   const applicationId = req.params.applicationId;
 
   try {
-    // Start transaction
     await db.query('START TRANSACTION');
 
     // Update the specific application to 'accepted'
@@ -146,7 +143,6 @@ router.post('/:id/accept/:applicationId', async (req, res) => {
       WHERE request_id = ? AND application_id != ?
     `, [requestId, applicationId]);
 
-    // Commit transaction
     await db.query('COMMIT');
 
     res.json({ message: 'Application accepted successfully' });
@@ -164,7 +160,6 @@ router.post('/:id/reject/:applicationId', async (req, res) => {
   const applicationId = req.params.applicationId;
 
   try {
-    // Start transaction
     await db.query('START TRANSACTION');
 
     // Update the specific application to 'rejected'
@@ -189,7 +184,6 @@ router.post('/:id/reject/:applicationId', async (req, res) => {
       `, [requestId]);
     }
 
-    // Commit transaction
     await db.query('COMMIT');
 
     res.json({ message: 'Application rejected successfully' });

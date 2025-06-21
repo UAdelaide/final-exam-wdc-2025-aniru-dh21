@@ -12,7 +12,7 @@ app.use(express.static(path.join(__dirname, '/public')));
 
 // Session middleware
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'd9ab238ca788259db2d6047343c2e177dfc032cdc5daaab1f3b2ab562b2dddce1cc5202fec2c01fea51b9751968623426521837aca5dbdad4dd44cbfc9876dbe', // Use environment variable in production
+    secret: 'd9ab238ca788259db2d6047343c2e177dfc032cdc5daaab1f3b2ab562b2dddce1cc5202fec2c01fea51b9751968623426521837aca5dbdad4dd44cbfc9876dbe', // Use environment variable in production
     resave: false,
     saveUninitialized: false,
     cookie: {
