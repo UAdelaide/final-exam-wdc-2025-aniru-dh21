@@ -64,10 +64,10 @@
     <div v-if="error" class="alert alert-danger">{{ error }}</div>
 
     <!-- List of walk requests -->
-    <h2 class="mb-3">My Walk Requests</h2>
+    <h2 class="mb-3">My Open Walk Requests</h2>
     <div class="row" v-if="walks.length > 0">
       <div class="col-md-6 mb-4" v-for="walk in walks" :key="walk.request_id">
-        <div class="card" :class="getCardClass(walk.status)">
+        <div class="card border-success">
           <div class="card-body">
             <h5 class="card-title">Request #{{ walk.request_id }}</h5>
             <p class="card-text">
@@ -76,28 +76,17 @@
               <strong>Duration:</strong> {{ walk.duration_minutes }} minutes<br>
               <strong>Location:</strong> {{ walk.location }}<br>
               <strong>Status:</strong>
-              <span :class="getStatusClass(walk.status)">{{ getStatusText(walk.status) }}</span>
+              <span class="badge bg-success">Open</span>
             </p>
-            <!-- Show applications for pending requests -->
-            <div v-if="walk.status === 'pending' && walk.applications && walk.applications.length > 0">
-              <h6 class="mt-3">Walker Applications:</h6>
-              <div v-for="app in walk.applications" :key="app.application_id" class="mb-2">
-                <div class="d-flex justify-content-between align-items-center border p-2 rounded">
-                  <span>{{ app.walker_name }}</span>
-                  <div>
-                    <button @click="acceptApplication(walk.request_id, app.application_id)"
-                      class="btn btn-sm btn-success me-2">Accept</button>
-                    <button @click="rejectApplication(walk.request_id, app.application_id)"
-                      class="btn btn-sm btn-danger">Reject</button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <p class="text-muted small">
+              <i class="bi bi-info-circle"></i> This request is visible to walkers and available for applications.
+            </p>
           </div>
         </div>
       </div>
     </div>
-    <p v-else>No walk requests yet.</p>
+    <p v-else class="text-muted">No open walk requests. Once walkers apply for your requests, they will no longer appear
+      here.</p>
   </div>
 
   <script>
@@ -169,74 +158,6 @@
           }
         }
 
-        async function acceptApplication(requestId, applicationId) {
-          try {
-            const res = await fetch(`/api/walks/${requestId}/accept/${applicationId}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' }
-            });
-            const result = await res.json();
-
-            if (!res.ok) throw new Error(result.error || 'Failed to accept application');
-
-            message.value = result.message;
-            error.value = '';
-            loadWalks();
-          } catch (err) {
-            error.value = err.message;
-            message.value = '';
-          }
-        }
-
-        async function rejectApplication(requestId, applicationId) {
-          try {
-            const res = await fetch(`/api/walks/${requestId}/reject/${applicationId}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' }
-            });
-            const result = await res.json();
-
-            if (!res.ok) throw new Error(result.error || 'Failed to reject application');
-
-            message.value = result.message;
-            error.value = '';
-            loadWalks();
-          } catch (err) {
-            error.value = err.message;
-            message.value = '';
-          }
-        }
-
-        function getCardClass(status) {
-          switch (status) {
-            case 'open': return 'border-success';
-            case 'pending': return 'border-warning';
-            case 'accepted': return 'border-info';
-            case 'completed': return 'border-secondary';
-            default: return '';
-          }
-        }
-
-        function getStatusClass(status) {
-          switch (status) {
-            case 'open': return 'badge bg-success';
-            case 'pending': return 'badge bg-warning';
-            case 'accepted': return 'badge bg-info';
-            case 'completed': return 'badge bg-secondary';
-            default: return 'badge bg-light text-dark';
-          }
-        }
-
-        function getStatusText(status) {
-          switch (status) {
-            case 'open': return 'Open';
-            case 'pending': return 'Pending Review';
-            case 'accepted': return 'Walker Assigned';
-            case 'completed': return 'Completed';
-            default: return status;
-          }
-        }
-
         async function logout() {
           try {
             const res = await fetch('/api/users/logout', {
@@ -270,11 +191,6 @@
           message,
           error,
           submitWalkRequest,
-          acceptApplication,
-          rejectApplication,
-          getCardClass,
-          getStatusClass,
-          getStatusText,
           logout
         };
       }

@@ -1,5 +1,6 @@
 const express = require('express');
 const session = require('express-session');
+const db = require('./models/db.js');
 const path = require('path');
 require('dotenv').config();
 
@@ -34,4 +35,19 @@ const PORT = 8080;
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
+});
+
+app.get('/api/dogs', async (req, res) => {
+    try {
+        const [dogs] = await db.execute(`
+      SELECT d.name as dog_name, d.size, u.username as owner_username
+      FROM Dogs d
+      JOIN USERS u ON d.owner_id = u.user_id
+      ORDER BY d.name
+    `);
+        res.json(dogs);
+    } catch (err) {
+        console.error('Error fetching dogs:', err);
+        res.status(500).json({ error: 'Failed to fetch dogs' });
+    }
 });

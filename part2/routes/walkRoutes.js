@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET walk requests for owners (only their own requests)
+// GET walk requests for owners (only their own OPEN requests)
 router.get('/my-requests', async (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ error: 'Not logged in' });
@@ -30,7 +30,7 @@ router.get('/my-requests', async (req, res) => {
       SELECT wr.*, d.name AS dog_name, d.size
       FROM WalkRequests wr
       JOIN Dogs d ON wr.dog_id = d.dog_id
-      WHERE d.owner_id = ?
+      WHERE d.owner_id = ? AND wr.status = 'open'
       ORDER BY wr.created_at DESC
     `, [req.session.user.user_id]);
     res.json(rows);
